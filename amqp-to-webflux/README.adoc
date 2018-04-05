@@ -1,0 +1,4 @@
+== RabbitMQ Listener to SSE via WebFlux
+
+This sample demonstrate a simple bridging of message from the RabbitMQ queue to the Server Side Events subscribers via Project Reactor `UnicastProcessor` with `share` mode.
+
