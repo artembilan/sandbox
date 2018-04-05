@@ -2,7 +2,7 @@
 
 In this repository you can find various small projects for some Proof of Concepts, as Samples for mixed concerns or answers to StackOverflow questions.
 
-Mostly their are about:
+Mostly they are about:
 
 * [Spring Integration](https://projects.spring.io/spring-integration/)
 * [Spring AMQP](https://projects.spring.io/spring-amqp/)
