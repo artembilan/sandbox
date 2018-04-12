@@ -1,0 +1,7 @@
+== Hystrix Command with Service Activator
+
+This sample demonstrate how we can apply a Spring Cloud `@HystrixCommand` on the Spring Integration `@ServiceActivator`.
+
+NOTE: Since Netflix Hystrix proxying is based on the AspectJ, we can't apply `@HystrixCommand` on the `@MessagingGateway` interfaces.
+The JDK Proxy is not compatible with AspectJ and method annotations are not visible for the `AspectJAwareAdvisorAutoProxyCreator`.
+
