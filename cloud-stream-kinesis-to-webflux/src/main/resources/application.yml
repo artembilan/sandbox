@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    stream:
+      bindings:
+        input:
+          destination: SSE_DATA
+          group: kinesis-to-sse
+          contentType: application/octet-stream
+          consumer:
+            headerMode: none
+      kinesis:
+        bindings:
+          input:
+            consumer:
+              listenerMode: rawRecords
+
+cloud:
+  aws:
+    region:
+      static: eu-west-1

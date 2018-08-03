@@ -1,0 +1,5 @@
+== Reactive Spring Cloud Stream AWS Kinesis Binder to SSE via WebFlux
+
+This sample demonstrate a simple bridging of AWS Kinesis stream records to the Server Side Events subscribers via Project Reactor `UnicastProcessor` with `share` mode.
+The `@StreamListener` sink side is based on the Spring Cloud Stream Reactive support streaming incoming message to the `Flux` argument.
+
