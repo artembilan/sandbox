@@ -38,25 +38,18 @@ import reactor.core.publisher.UnicastProcessor;
 @RestController
 public class CloudStreamKinesisToWebfluxApplication {
 
-	private final UnicastProcessor<String> sseFluxProcessor = UnicastProcessor.create();
-
-	private final Flux<String> sseFlux = this.sseFluxProcessor.share();
-
-	private volatile ConnectableFlux<?> recordFlux;
+	private volatile Flux<String> recordFlux;
 
 	@GetMapping(value = "/sseFromKinesis", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<String> getSeeFromKinesis() {
-		this.recordFlux.connect();
-		return this.sseFlux;
+		return this.recordFlux;
 	}
 
 	@StreamListener(Sink.INPUT)
 	public void kinesisSink(Flux<List<Record>> recordFlux) {
 		this.recordFlux = recordFlux
 				.flatMap(Flux::fromIterable)
-				.map(record -> new String(record.getData().array(), StandardCharsets.UTF_8))
-				.handle((message, sink) -> this.sseFluxProcessor.onNext(message))
-				.publish();
+				.map(record -> new String(record.getData().array(), StandardCharsets.UTF_8));
 	}
 
 
