@@ -1,0 +1,4 @@
+== WebFlux Reactive WebSockets via Spring Integration
+
+This sample demonstrate a simple Reactive WebSocket messages processing using `IntegrationFlow` and Spring Integration Reactive support.
+The test-case shows how to test WebSockets interaction in Spring Boot applications. 
