@@ -66,7 +66,6 @@ public class SpringIntegrationWebsocketReactiveApplication {
 					IntegrationFlows.from(input)
 							.<String, String>transform(String::toUpperCase)
 							.<String>handle((p, h) -> ((WebSocketSession) h.get("webSocketSession")).textMessage(p))
-							.log()
 							.toReactivePublisher();
 
 			IntegrationFlowRegistration flowRegistration =
