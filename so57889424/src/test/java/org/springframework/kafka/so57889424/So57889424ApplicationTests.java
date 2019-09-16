@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@EmbeddedKafka(topics = So57889424Application.SO57889424_TOPIC, partitions = 6, controlledShutdown = true)
+@EmbeddedKafka(topics = So57889424Application.SO57889424_TOPIC, partitions = 32, controlledShutdown = true)
 @DirtiesContext
 public class So57889424ApplicationTests {
 
@@ -39,7 +39,7 @@ public class So57889424ApplicationTests {
 
 	@Test
 	public void testSo57889424() throws InterruptedException {
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 60; i++) {
 			this.kafkaTemplate.send(So57889424Application.SO57889424_TOPIC, "test" + i);
 		}
 
@@ -47,7 +47,7 @@ public class So57889424ApplicationTests {
 
 		assertThat(this.listenerIdleLatch.await(60, TimeUnit.SECONDS)).isTrue();
 
-		assertThat(this.processCount.get()).isEqualTo(20 * 3);
+		assertThat(this.processCount.get()).isEqualTo(60 * 3);
 	}
 
 }
