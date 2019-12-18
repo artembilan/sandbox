@@ -25,6 +25,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.integration.annotation.EndpointId;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.context.IntegrationContextUtils;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -37,6 +38,7 @@ import org.springframework.integration.http.config.EnableIntegrationGraphControl
 import org.springframework.integration.http.dsl.Http;
 import org.springframework.integration.store.MessageStore;
 import org.springframework.integration.store.SimpleMessageStore;
+import org.springframework.integration.transformer.HeaderFilter;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
@@ -53,25 +55,25 @@ public class GraphSampleAllComponentsApplication {
 	IntegrationFlow someGatewaysFlow(
 			@Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME) Executor executor) {
 
-		return IntegrationFlows.from(Http.inboundGateway("/somePath").autoStartup(false))
-				.headerFilter("foo")
+		return IntegrationFlows.from(Http.inboundGateway("/somePath").autoStartup(false).id("httpInboundGateway"))
+				.headerFilter(new HeaderFilter("foo"), e -> e.id("headerFilter"))
 				.channel(c -> c.queue("queueChannel"))
-				.transform(Transformers.objectToString(), e -> e.poller(p -> p.fixedDelay(1000)))
+				.transform(Transformers.objectToString(), e -> e.poller(p -> p.fixedDelay(1000)).id("objectToString"))
 				.channel(c -> c.flux("fluxChannel"))
-				.filter(payload -> true)
-				.delay("delayGroup")
+				.filter(payload -> true, e -> e.id("filter"))
+				.delay("delayGroup", e -> e.id("delayer"))
 				.<Object, Boolean>route(p -> false,
 						e -> e.id("router").defaultOutputToParentFlow())
-				.handle(Http.outboundGateway("/someService"))
+				.handle(Http.outboundGateway("/someService"), e -> e.id("httpServiceActivator"))
 				.channel(c -> c.executor(executor))
-				.bridge()
+				.bridge(e -> e.id("bridge"))
 				.get();
 	}
 
 	@Bean
 	public IntegrationFlow controlBusFlow() {
 		return IntegrationFlows.from(Function.class)
-				.controlBus()
+				.controlBus(e -> e.id("controlBus"))
 				.get();
 	}
 
@@ -82,19 +84,20 @@ public class GraphSampleAllComponentsApplication {
 
 	@Bean
 	IntegrationFlow someSplitAggregateFlow(MessageChannel scatterChannel) {
-		return IntegrationFlows.from(Http.inboundChannelAdapter("/split").autoStartup(false))
-				.split()
-				.enrichHeaders(h -> h.header("someHeader", "someValue"))
-				.enrich(enrich -> enrich.property("someProperty", "someValue"))
-				.scatterGather(scatterChannel)
-				.resequence()
-				.aggregate()
-				.claimCheckIn(messageStore())
-				.barrier(10000)
-				.handle((p, h) -> p)
-				.claimCheckOut(messageStore(), true)
+		return IntegrationFlows.from(Http.inboundChannelAdapter("/split").autoStartup(false).id("httpInboundChannelAdapter"))
+				.split(e -> e.id("splitter"))
+				.enrichHeaders(h -> h.header("someHeader", "someValue").id("headerEnricher"))
+				.enrich(enrich -> enrich.property("someProperty", "someValue").id("contentEnricher"))
+				.scatterGather(scatterChannel, e -> e.id("scatterGather"))
+				.resequence(e -> e.id("resequencer"))
+				.aggregate(e -> e.id("aggregator"))
+				.claimCheckIn(messageStore(), e-> e.id("claimCheckIn"))
+				.barrier(10000, e -> e.id("barrier"))
+				.<Object>handle((p, h) -> p, e -> e.id("serviceActivator"))
+				.claimCheckOut(messageStore(), true, e -> e.id("claimCheckOut"))
 				.log()
 				.routeToRecipients(route -> route
+						.id("recipientListRouter")
 						.recipient(IntegrationContextUtils.ERROR_CHANNEL_BEAN_NAME)
 						.recipient(IntegrationContextUtils.NULL_CHANNEL_BEAN_NAME))
 				.get();
@@ -123,6 +126,7 @@ public class GraphSampleAllComponentsApplication {
 
 	@Bean
 	@ServiceActivator(inputChannel = "chainInput")
+	@EndpointId("chainEndpoint")
 	MessageHandler chain() {
 		MessageHandlerChain messageHandlerChain = new MessageHandlerChain();
 		messageHandlerChain.setHandlers(Collections.singletonList(handlerForChain()));
