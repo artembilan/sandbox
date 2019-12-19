@@ -72,7 +72,7 @@ public class GraphSampleAllComponentsApplication {
 
 	@Bean
 	public IntegrationFlow controlBusFlow() {
-		return IntegrationFlows.from(Function.class)
+		return IntegrationFlows.from(Function.class, gateway -> gateway.beanName("controlBusGateway"))
 				.controlBus(e -> e.id("controlBus"))
 				.get();
 	}
@@ -88,7 +88,7 @@ public class GraphSampleAllComponentsApplication {
 				.split(e -> e.id("splitter"))
 				.enrichHeaders(h -> h.header("someHeader", "someValue").id("headerEnricher"))
 				.enrich(enrich -> enrich.property("someProperty", "someValue").id("contentEnricher"))
-				.scatterGather(scatterChannel, e -> e.id("scatterGather"))
+				.scatterGather(scatterChannel, null, e -> e.id("scatterGather"))
 				.resequence(e -> e.id("resequencer"))
 				.aggregate(e -> e.id("aggregator"))
 				.claimCheckIn(messageStore(), e-> e.id("claimCheckIn"))
@@ -126,7 +126,7 @@ public class GraphSampleAllComponentsApplication {
 
 	@Bean
 	@ServiceActivator(inputChannel = "chainInput")
-	@EndpointId("chainEndpoint")
+//	@EndpointId("chainEndpoint")
 	MessageHandler chain() {
 		MessageHandlerChain messageHandlerChain = new MessageHandlerChain();
 		messageHandlerChain.setHandlers(Collections.singletonList(handlerForChain()));
