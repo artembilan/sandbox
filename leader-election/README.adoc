@@ -1,0 +1,12 @@
+== Leader Election with Zookeeper
+
+This sample demonstrate a distributed leader election and role control via Zookeeper.
+
+A `SourcePollingChannelAdapter` in the application context is marked as not started from the beginning and supplied with a `myRole` role.
+This role is used as a leadership election key in the `LeaderInitiatorFactoryBean` for Zookeeper server.
+
+An embedded `TestingServer` from Curator Framework is started in a JUnit test class.
+The unit test method starts two application context and verifies the `applicationEvents.txt` file content.
+When both application context are active, we see events only from one of them since exactly this one is a leader.
+When we stop the first application, the second takes a leadership, starts its endpoint and emits events for its environment.
+So, in the end we start seeing those events in the end of `applicationEvents.txt` file.
