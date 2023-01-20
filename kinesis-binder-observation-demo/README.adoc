@@ -1,0 +1,15 @@
+== Observation over Spring Cloud Stream AWS Kinesis Binder
+
+This sample demonstrates an observation and tracing propagation over Spring Cloud Stream destination.
+
+In this case the application is a WebFlux server to receive `GET` request on a `/test`.
+Such a request then handled by Spring Cloud Stream `Supplier` bound to the `my-event` AWS Kinesis stream.
+A `name` request param becomes a payload of a message sent to the binder.
+
+To enable observation we added:
+1. A `io.micrometer:micrometer-tracing-bridge-brave` dependency to handle tracing via Brave library;
+2. A configuration property `spring.integration.management.observation-patterns=httpSupplier-out-0` to enable observation on a `MessageChannel` tied to the `httpSupplier-out-0` binding;
+3. A configuration property `spring.cloud.stream.kinesis.binder.headers=traceparent` to ensure that W3C tracing header is embedded into Kinesis record for propagation over Kinesis stream.
+
+The unit test with Localstack Testcontainers environment ensures that HTTP request produced to our application propagates a tracing data over Kinesis stream which we check with a `KinesisMessageDrivenChannelAdapter` subscribed on the mentioned `my-event` bound destination.
+This `KinesisMessageDrivenChannelAdapter` is configured to use the same Spring Cloud Stream API for embedded headers for protocol like AWS Kinesis which don't support headers abstraction in their events.
