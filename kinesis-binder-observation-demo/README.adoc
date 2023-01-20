@@ -7,6 +7,7 @@ Such a request then handled by Spring Cloud Stream `Supplier` bound to the `my-e
 A `name` request param becomes a payload of a message sent to the binder.
 
 To enable observation we added:
+
 1. A `io.micrometer:micrometer-tracing-bridge-brave` dependency to handle tracing via Brave library;
 2. A configuration property `spring.integration.management.observation-patterns=httpSupplier-out-0` to enable observation on a `MessageChannel` tied to the `httpSupplier-out-0` binding;
 3. A configuration property `spring.cloud.stream.kinesis.binder.headers=traceparent` to ensure that W3C tracing header is embedded into Kinesis record for propagation over Kinesis stream.
