@@ -20,13 +20,13 @@ import org.springframework.integration.aws.inbound.kinesis.KclMessageDrivenChann
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.messaging.Message;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(
-		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-		properties = {"cloud.aws.region.static=eu-west-2", "debug=true"})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @AutoConfigureObservability
 @DirtiesContext
@@ -37,6 +37,11 @@ class KinesisBinderObservationDemoApplicationTests implements LocalstackContaine
 
 	@Autowired
 	QueueChannel kinesisReceiveChannel;
+
+	@DynamicPropertySource
+	static void redisProperties(DynamicPropertyRegistry registry) {
+		registry.add("cloud.aws.region.static", LocalstackContainerTest.LOCAL_STACK_CONTAINER::getRegion);
+	}
 
 	@Test
 	void tracesArePropagatedFromWebToKinesis() {
