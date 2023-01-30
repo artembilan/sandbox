@@ -51,7 +51,7 @@ class KinesisBinderObservationDemoApplicationTests implements LocalstackContaine
 				.expectStatus()
 				.is2xxSuccessful();
 
-		Message<?> receive = this.kinesisReceiveChannel.receive(30_000);
+		Message<?> receive = this.kinesisReceiveChannel.receive(60_000);
 		assertThat(receive).isNotNull();
 		assertThat(receive.getPayload()).isEqualTo("foo");
 		assertThat(receive.getHeaders()).containsKey("traceparent");
