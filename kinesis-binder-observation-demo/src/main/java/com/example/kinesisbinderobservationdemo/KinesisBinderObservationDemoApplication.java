@@ -1,19 +1,20 @@
 package com.example.kinesisbinderobservationdemo;
 
-import java.util.function.Supplier;
-
-import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
+import java.util.function.Consumer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.binder.EmbeddedHeaderUtils;
+import org.springframework.cloud.stream.binder.MessageValues;
+import org.springframework.cloud.stream.binder.kinesis.properties.KinesisProducerProperties;
+import org.springframework.cloud.stream.binding.NewDestinationBindingCallback;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
-import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.expression.ValueExpression;
-import org.springframework.integration.webflux.dsl.WebFlux;
-import org.springframework.integration.webflux.inbound.WebFluxInboundEndpoint;
+import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.channel.QueueChannel;
+import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.ChannelInterceptor;
 
 @SpringBootApplication
 public class KinesisBinderObservationDemoApplication {
@@ -23,16 +24,13 @@ public class KinesisBinderObservationDemoApplication {
 	}
 
 	@Bean
-	public Publisher<Message<String>> httpSupplierFlow() {
-		return IntegrationFlow.from(
-						WebFlux.inboundChannelAdapter("/test")
-								.payloadExpression("#requestParams.name[0]"))
-				.toReactivePublisher(true);
+	public Consumer<Message<String>> kinesisConsumer(QueueChannel testBuffer) {
+		return testBuffer::send;
 	}
 
 	@Bean
-	public Supplier<Flux<Message<String>>> httpSupplier(Publisher<Message<String>> httpRequestPublisher) {
-		return () -> Flux.from(httpRequestPublisher);
+	public QueueChannel testBuffer() {
+		return new QueueChannel();
 	}
 
 }
