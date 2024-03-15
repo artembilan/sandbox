@@ -1,0 +1,16 @@
+= Tracing Over PostgreSQL Message Channel
+
+This sample demonstrates a `PostgresSubscribableChannel` and how an `Observation` is propagated from producer to consumer.
+
+To propagate an observation over this channel, there is enough to have it enabled on this channel and on its subscriber:
+
+[source,properties]
+----
+spring.integration.management.observation-patterns=postgresChannel,postgresHandler
+----
+
+It uses Spring Boot https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.testing.testcontainers.service-connections[Service Connections] in the test to start Testcontainers for PostgreSQL DB.
+The `TestSpanHandler` from the `io.micrometer:micrometer-tracing-integration-test` is used to verify the tracing in the application.
+And also the test checks for the common `traceId` in the `CapturedOutput`, which is logged by the `postgresHandler` `@ServiceActivator`.
+
+See https://docs.spring.io/spring-integration/reference/jdbc/message-store.html#postgresql-push[Spring Integration JDBC] module for more information.

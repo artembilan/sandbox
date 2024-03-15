@@ -1,0 +1,41 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.3'
+	id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'org.springframework.integration'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-integration'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.integration:spring-integration-jdbc'
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'org.postgresql:postgresql'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.springframework.integration:spring-integration-test'
+	testImplementation 'org.testcontainers:postgresql'
+	testImplementation 'io.micrometer:micrometer-observation-test'
+	testImplementation('io.micrometer:micrometer-tracing-integration-test') {
+		exclude group: 'io.zipkin.reporter2'
+		exclude group: 'io.opentelemetry'
+		exclude group: 'com.wavefront'
+		exclude group: 'io.micrometer', module: 'micrometer-tracing-bridge-otel'
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
