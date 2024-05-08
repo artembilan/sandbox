@@ -40,7 +40,7 @@ class SpringCloudStreamRabbitDlqApplicationTests {
 		@Bean
 		@ServiceConnection
 		RabbitMQContainer rabbitContainer() {
-			return new RabbitMQContainer(DockerImageName.parse("rabbitmq:3.12"));
+			return new RabbitMQContainer(DockerImageName.parse("rabbitmq:3.13.2"));
 		}
 
 		@Bean
