@@ -1,0 +1,11 @@
+== Spring Integration with MQTT Shared Subscriptions
+
+This sample demonstrates a simple functionality for shared subscription in MQTT protocol.
+The `Mqttv5PahoMessageDrivenChannelAdapter` subscribes to the `$share/group1/test`, and `Mqttv5PahoMessageHandler` produces to the `test` topic.
+The `SpringIntegrationMqttShareDemoApplicationTests` is based on the Testcontainers for the `eclipse-mosquitto` docker image.
+The `MockIntegrationContext` makes use of Integration mocks to verify the application logic.
+
+NOTE: The publisher and subscriber must use different client ids.
+The shared one, based on the `Mqttv5ClientManager`, for example, does not make it through consumption from the shared subscription.
+
+
