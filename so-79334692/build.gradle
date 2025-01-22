@@ -1,10 +1,10 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.0'
-	id 'io.spring.dependency-management' version '1.1.5'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'org.springframework.integration.demo'
+group = 'org.springframework.integration.example'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -15,20 +15,19 @@ java {
 
 repositories {
 	mavenCentral()
-	maven { url 'https://repo.spring.io/snapshot' }
-}
-
-ext {
-	set('spring-integration.version', '6.3.1-SNAPSHOT')
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-integration'
-	implementation 'org.springframework.integration:spring-integration-mqtt'
-	implementation 'org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.integration:spring-integration-jdbc'
+	implementation 'org.springframework.integration:spring-integration-sftp'
+
+	runtimeOnly 'com.h2database:h2'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.integration:spring-integration-test'
-	testImplementation 'org.testcontainers:junit-jupiter'
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

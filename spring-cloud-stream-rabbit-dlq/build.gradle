@@ -12,16 +12,21 @@ java {
 }
 
 repositories {
+	mavenLocal()
 	mavenCentral()
+	maven { url 'https://repo.spring.io/snapshot' }
 }
 
 ext {
-	set('springCloudVersion', "2023.0.1")
+	set('springCloudVersion', "2024.0.0-SNAPSHOT")
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'org.springframework.cloud:spring-cloud-stream'
+	implementation 'org.springframework.amqp:spring-amqp:3.2.0-SNAPSHOT'
+	implementation 'org.springframework.amqp:spring-rabbit:3.2.0-SNAPSHOT'
+	implementation 'org.springframework.integration:spring-integration-amqp:6.4.0-SNAPSHOT'
 	implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'

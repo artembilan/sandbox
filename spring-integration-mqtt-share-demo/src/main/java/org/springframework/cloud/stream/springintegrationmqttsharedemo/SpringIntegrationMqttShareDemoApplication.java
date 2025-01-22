@@ -23,10 +23,15 @@ public class SpringIntegrationMqttShareDemoApplication {
 	}
 
 	@Bean
-	public IntegrationFlow mqttInFlow(@Value("${mqtt.url}") String mqttUrl) {
+	Mqttv5ClientManager mqttv5ClientManager(@Value("${mqtt.url}") String mqttUrl) {
+		return new Mqttv5ClientManager(mqttUrl, "subscriber-for-shared-subscription");
+	}
+
+	@Bean
+	public IntegrationFlow mqttInFlow(Mqttv5ClientManager mqttv5ClientManager, @Value("${mqtt.url}") String mqttUrl) {
 		return IntegrationFlow.from(
 						new Mqttv5PahoMessageDrivenChannelAdapter(
-								mqttUrl, "subscriber-for-shared-subscription", "$share/group1/test"))
+								mqttv5ClientManager, "$share/group1/test"))
 				.<byte[], String>transform(String::new)
 				.handle(m -> System.out.println("Received message: " + m.getPayload()), e -> e.id("dataHandler"))
 				.get();

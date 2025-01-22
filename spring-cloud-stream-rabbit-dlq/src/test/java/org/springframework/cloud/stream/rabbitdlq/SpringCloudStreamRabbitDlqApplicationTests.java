@@ -13,6 +13,7 @@ import org.testcontainers.utility.DockerImageName;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.ImmediateAcknowledgeAmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,7 +41,7 @@ class SpringCloudStreamRabbitDlqApplicationTests {
 		@Bean
 		@ServiceConnection
 		RabbitMQContainer rabbitContainer() {
-			return new RabbitMQContainer(DockerImageName.parse("rabbitmq:3.13.2"));
+			return new RabbitMQContainer(DockerImageName.parse("rabbitmq:4"));
 		}
 
 		@Bean
@@ -51,14 +52,11 @@ class SpringCloudStreamRabbitDlqApplicationTests {
 		@Bean
 		public Consumer<Message<String>> listener(CountDownLatch dlqRetryExhausted) {
 			return message -> {
-				List<Map<?, ?>> xDeath = (List<Map<?, ?>>) message.getHeaders().get("x-death");
-				if (xDeath != null) {
-					Map<?, ?> death = xDeath.get(0);
-					if (death.get("count").equals(3L)) {
-						dlqRetryExhausted.countDown();
-						// giving up - don't send to DLX
-						throw new ImmediateAcknowledgeAmqpException("Failed after 4 attempts");
-					}
+				Long retryCount = message.getHeaders().get(AmqpHeaders.RETRY_COUNT, Long.class);
+				if (retryCount != null && retryCount.equals(3L)) {
+					dlqRetryExhausted.countDown();
+					// giving up - don't send to DLX
+					throw new ImmediateAcknowledgeAmqpException("Failed after 4 attempts");
 				}
 				throw new AmqpRejectAndDontRequeueException("failed");
 			};
