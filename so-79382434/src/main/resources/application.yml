@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: so-79382434
+  cloud:
+    stream:
+      bindings:
+        new-price-out:
+          destination: new-price
+        newPrice-in-0:
+          destination: new-price

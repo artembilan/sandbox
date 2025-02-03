@@ -1,0 +1,53 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.0-SNAPSHOT'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'net.ltgt.errorprone' version '3.1.0'
+}
+
+group = 'org.springframework.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+	maven { url 'https://repo.spring.io/snapshot' }
+}
+
+ext {
+	set('spring-framework.version', '7.0.0-SNAPSHOT')
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	errorprone 'com.uber.nullaway:nullaway:0.12.3'
+	errorprone 'com.google.errorprone:error_prone_core:2.35.1'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+
+tasks.withType(JavaCompile).configureEach {
+	options.errorprone {
+		disableAllChecks = true
+		option('NullAway:OnlyNullMarked', 'true')
+		option('NullAway:CustomContractAnnotations', 'org.springframework.lang.Contract')
+		option('NullAway:JSpecifyMode', 'true')
+	}
+}
+
+tasks.compileJava {
+	// The check defaults to a warning, bump it up to an error for the main sources
+	options.errorprone.error('NullAway')
+}
