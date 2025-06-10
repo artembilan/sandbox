@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <kafka.version>3.7.1</kafka.version>
+        <kafka.version>3.9.1</kafka.version>
         <spring-integration.version>5.5.8-SNAPSHOT</spring-integration.version>
     </properties>
     <dependencies>
